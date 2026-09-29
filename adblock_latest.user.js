@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         全站广告屏蔽
 // @namespace    https://adblock.local
-// @version      1.2.0
+// @version      1.2.1
 // @description  通用广告屏蔽脚本：集成 EasyList+EasyList China 规则库智能识别全网广告，隐藏广告元素、移除全屏遮罩、拦截广告跳转与弹窗。支持所有网站。
 // @author       自写脚本
 // @match        *://*/*
@@ -20,7 +20,7 @@
 (function () {
     'use strict';
 
-    var VERSION = '1.2.0';
+    var VERSION = '1.2.1';
 
     /* ============================================================
      * 配置区
@@ -64,7 +64,9 @@
         ],
         // 白名单：这些网站不启用屏蔽（可自行添加）
         whitelist: [
-            'csdn.net'  // 临时：CSDN 页面结构特殊，通用规则误伤严重，待精准规则完成后移出
+            'csdn.net',  // 临时：CSDN 页面结构特殊，通用规则误伤严重，待精准规则完成后移出
+            'scriptcat.org',  // ScriptCat 脚本站：SPA 架构，拦截其广告请求会导致整站报"服务器内部错误"
+            'scriptcat.cn'
         ],
         // 站点专属 CSS 选择器（按域名匹配，命中的元素直接隐藏）
         siteSelectors: {
