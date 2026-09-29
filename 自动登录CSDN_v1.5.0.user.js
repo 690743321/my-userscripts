@@ -1,4 +1,4 @@
-// ==UserScript==
+﻿// ==UserScript==
 // @name         自动登录CSDN
 // @namespace    https://csdn-download.local
 // @version      1.5.0
@@ -17,8 +17,8 @@
 // @connect      passport.csdn.net
 // @connect      csdnimg.cn
 // @license      MIT
-// @updateURL    https://raw.githubusercontent.com/690743321/my-userscripts/main/自动登录CSDN_latest.user.js
-// @downloadURL  https://raw.githubusercontent.com/690743321/my-userscripts/main/自动登录CSDN_latest.user.js
+// @updateURL    https://raw.githubusercontent.com/690743321/my-userscripts/main/csdn-autologin_latest.user.js
+// @downloadURL  https://raw.githubusercontent.com/690743321/my-userscripts/main/csdn-autologin_latest.user.js
 // ==/UserScript==
 
 (function () {

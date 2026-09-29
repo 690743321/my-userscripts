@@ -1,4 +1,4 @@
-// ==UserScript==
+﻿// ==UserScript==
 // @name         B站禁止登录弹窗+自动最高清晰度+无限试看+未登录看全部评论
 // @namespace    https://www.bilibili.com
 // @version      2.3.0
@@ -14,8 +14,8 @@
 // @grant        GM_info
 // @grant        GM_getValue
 // @grant        GM_setValue
-// @updateURL    https://raw.githubusercontent.com/690743321/my-userscripts/main/bilibili禁登录弹窗-最高清-无限试看_latest.user.js
-// @downloadURL  https://raw.githubusercontent.com/690743321/my-userscripts/main/bilibili禁登录弹窗-最高清-无限试看_latest.user.js
+// @updateURL    https://raw.githubusercontent.com/690743321/my-userscripts/main/bilibili_latest.user.js
+// @downloadURL  https://raw.githubusercontent.com/690743321/my-userscripts/main/bilibili_latest.user.js
 // @license      MIT
 // ==/UserScript==
 

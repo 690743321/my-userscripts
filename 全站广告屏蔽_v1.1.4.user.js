@@ -1,4 +1,4 @@
-// ==UserScript==
+﻿// ==UserScript==
 // @name         全站广告屏蔽
 // @namespace    https://adblock.local
 // @version      1.1.4
@@ -8,8 +8,8 @@
 // @run-at       document-start
 // @grant        GM_addStyle
 // @grant        unsafeWindow
-// @updateURL    https://raw.githubusercontent.com/690743321/my-userscripts/main/全站广告屏蔽_latest.user.js
-// @downloadURL  https://raw.githubusercontent.com/690743321/my-userscripts/main/全站广告屏蔽_latest.user.js
+// @updateURL    https://raw.githubusercontent.com/690743321/my-userscripts/main/adblock_latest.user.js
+// @downloadURL  https://raw.githubusercontent.com/690743321/my-userscripts/main/adblock_latest.user.js
 // @license      MIT
 // ==/UserScript==
 
