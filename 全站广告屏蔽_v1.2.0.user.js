@@ -1,13 +1,17 @@
-﻿// ==UserScript==
+// ==UserScript==
 // @name         全站广告屏蔽
 // @namespace    https://adblock.local
-// @version      1.1.4
-// @description  通用广告屏蔽脚本：隐藏广告元素、移除全屏遮罩、拦截广告跳转与弹窗、屏蔽广告网络请求。支持所有网站。
+// @version      1.2.0
+// @description  通用广告屏蔽脚本：集成 EasyList+EasyList China 规则库智能识别全网广告，隐藏广告元素、移除全屏遮罩、拦截广告跳转与弹窗。支持所有网站。
 // @author       自写脚本
 // @match        *://*/*
 // @run-at       document-start
 // @grant        GM_addStyle
+// @grant        GM_xmlhttpRequest
+// @grant        GM_setValue
+// @grant        GM_getValue
 // @grant        unsafeWindow
+// @connect      easylist-downloads.adblockplus.org
 // @updateURL    https://raw.githubusercontent.com/690743321/my-userscripts/main/adblock_latest.user.js
 // @downloadURL  https://raw.githubusercontent.com/690743321/my-userscripts/main/adblock_latest.user.js
 // @license      MIT
@@ -16,7 +20,7 @@
 (function () {
     'use strict';
 
-    var VERSION = '1.1.4';
+    var VERSION = '1.2.0';
 
     /* ============================================================
      * 配置区
@@ -807,6 +811,78 @@
     }
 
     /* ============================================================
+     * EasyList 规则库（智能识别全网广告的核心数据源）
+     * 下载 EasyList+EasyList China，解析元素隐藏规则（##选择器），本地缓存 7 天
+     * ============================================================ */
+    var EASYLIST_URL = 'https://easylist-downloads.adblockplus.org/easylistchina+easylist.txt';
+    var EASYLIST_CACHE_KEY = 'adblock_easylist_cache';
+    var EASYLIST_CACHE_TTL = 7 * 24 * 3600 * 1000;
+    var easylistApplied = false;
+
+    // 解析规则文本，返回当前域名适用的 CSS 选择器数组
+    function parseEasyList(text, host) {
+        var out = [];
+        var lines = text.split('\n');
+        for (var i = 0; i < lines.length; i++) {
+            var line = lines[i];
+            var idx = line.indexOf('##');
+            if (idx < 0) continue; // 只处理元素隐藏规则，跳过网络规则（||xxx^）
+            var sel = line.slice(idx + 2).trim();
+            if (!sel || sel.indexOf(':-abp-') >= 0 || sel.indexOf('^script:') >= 0) continue; // 跳过 ABP 高级语法
+            var domains = line.slice(0, idx).trim();
+            if (!domains) { out.push(sel); continue; } // 全局规则
+            var dlist = domains.split(',');
+            var match = false, excluded = false;
+            for (var j = 0; j < dlist.length; j++) {
+                var d = dlist[j].trim();
+                if (!d) continue;
+                if (d.charAt(0) === '~') {
+                    if (host === d.slice(1) || host.endsWith('.' + d.slice(1))) excluded = true;
+                } else if (host === d || host.endsWith('.' + d)) {
+                    match = true;
+                }
+            }
+            if (match && !excluded) out.push(sel);
+        }
+        return out;
+    }
+
+    function applyEasyListRules(ruleText) {
+        if (easylistApplied) return;
+        easylistApplied = true;
+        var sels = parseEasyList(ruleText, location.hostname);
+        if (!sels.length) return;
+        var css = '';
+        for (var i = 0; i < sels.length; i += 500) { // 分批拼接，避免单条规则过长
+            css += sels.slice(i, i + 500).join(',') + '{display:none!important;}\n';
+        }
+        try { GM_addStyle(css); } catch (e) {}
+        console.log('[AdBlock] EasyList 规则已应用: ' + sels.length + ' 条');
+    }
+
+    function applyEasyList() {
+        if (easylistApplied || typeof GM_xmlhttpRequest !== 'function') return;
+        var cached = null;
+        try { cached = GM_getValue(EASYLIST_CACHE_KEY, null); } catch (e) {}
+        var now = Date.now();
+        if (cached && cached.text && (now - cached.time) < EASYLIST_CACHE_TTL) {
+            applyEasyListRules(cached.text);
+            return;
+        }
+        GM_xmlhttpRequest({
+            method: 'GET', url: EASYLIST_URL, timeout: 30000,
+            onload: function (res) {
+                if (res.status === 200 && res.responseText) {
+                    try { GM_setValue(EASYLIST_CACHE_KEY, { time: now, text: res.responseText }); } catch (e) {}
+                    applyEasyListRules(res.responseText);
+                }
+            },
+            onerror: function () { console.log('[AdBlock] EasyList 下载失败，仅使用内置规则'); },
+            ontimeout: function () { console.log('[AdBlock] EasyList 下载超时，仅使用内置规则'); }
+        });
+    }
+
+    /* ============================================================
      * 主流程
      * ============================================================ */
     function init() {
@@ -817,6 +893,7 @@
         console.log('[AdBlock] 广告屏蔽已启动 v' + VERSION);
 
         injectCSS(buildAdCSS());
+        applyEasyList();
         installRedirectBlocker();
         installNetworkBlocker();
 
