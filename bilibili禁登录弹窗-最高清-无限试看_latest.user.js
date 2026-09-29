@@ -14,7 +14,8 @@
 // @grant        GM_info
 // @grant        GM_getValue
 // @grant        GM_setValue
-// @updateURL    file:///D:/备份/脚本猫/自写脚本/bilibili禁登录弹窗-最高清-无限试看_latest.user.js
+// @updateURL    https://raw.githubusercontent.com/690743321/my-userscripts/main/bilibili禁登录弹窗-最高清-无限试看_latest.user.js
+// @downloadURL  https://raw.githubusercontent.com/690743321/my-userscripts/main/bilibili禁登录弹窗-最高清-无限试看_latest.user.js
 // @license      MIT
 // ==/UserScript==
 

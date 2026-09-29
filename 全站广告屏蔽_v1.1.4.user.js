@@ -8,7 +8,8 @@
 // @run-at       document-start
 // @grant        GM_addStyle
 // @grant        unsafeWindow
-// @updateURL    file:///D:/备份/脚本猫/自写脚本/全站广告屏蔽_latest.user.js
+// @updateURL    https://raw.githubusercontent.com/690743321/my-userscripts/main/全站广告屏蔽_latest.user.js
+// @downloadURL  https://raw.githubusercontent.com/690743321/my-userscripts/main/全站广告屏蔽_latest.user.js
 // @license      MIT
 // ==/UserScript==
 
