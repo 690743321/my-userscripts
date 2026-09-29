@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         全站广告屏蔽
 // @namespace    https://adblock.local
-// @version      1.2.1
+// @version      1.2.2
 // @description  通用广告屏蔽脚本：集成 EasyList+EasyList China 规则库智能识别全网广告，隐藏广告元素、移除全屏遮罩、拦截广告跳转与弹窗。支持所有网站。
 // @author       自写脚本
 // @match        *://*/*
@@ -20,7 +20,7 @@
 (function () {
     'use strict';
 
-    var VERSION = '1.2.1';
+    var VERSION = '1.2.2';
 
     /* ============================================================
      * 配置区
@@ -64,8 +64,12 @@
         ],
         // 白名单：这些网站不启用屏蔽（可自行添加）
         whitelist: [
-            'csdn.net',  // 临时：CSDN 页面结构特殊，通用规则误伤严重，待精准规则完成后移出
-            'scriptcat.org',  // ScriptCat 脚本站：SPA 架构，拦截其广告请求会导致整站报"服务器内部错误"
+            'csdn.net'  // 临时：CSDN 页面结构特殊，通用规则误伤严重，待精准规则完成后移出
+        ],
+        // 仅 CSS 隐藏模式：这些站点只隐藏广告元素，不做网络拦截/跳转拦截/点击拦截
+        // （SPA 站点数据请求被拦截会导致整站报错，如 ScriptCat 显示"服务器内部错误"）
+        cssOnlySites: [
+            'scriptcat.org',
             'scriptcat.cn'
         ],
         // 站点专属 CSS 选择器（按域名匹配，命中的元素直接隐藏）
@@ -134,6 +138,15 @@
         var host = location.hostname;
         for (var i = 0; i < CONFIG.whitelist.length; i++) {
             if (host.indexOf(CONFIG.whitelist[i]) >= 0) return true;
+        }
+        return false;
+    }
+
+    // 当前站点是否仅 CSS 隐藏模式（禁用主动拦截，保护 SPA 数据请求）
+    function inCssOnlySite() {
+        var host = location.hostname;
+        for (var i = 0; i < CONFIG.cssOnlySites.length; i++) {
+            if (host.indexOf(CONFIG.cssOnlySites[i]) >= 0) return true;
         }
         return false;
     }
@@ -892,12 +905,14 @@
             console.log('[AdBlock] 网站在白名单中，已跳过');
             return;
         }
-        console.log('[AdBlock] 广告屏蔽已启动 v' + VERSION);
+        console.log('[AdBlock] 广告屏蔽已启动 v' + VERSION + (inCssOnlySite() ? '（仅隐藏模式）' : ''));
 
         injectCSS(buildAdCSS());
         applyEasyList();
-        installRedirectBlocker();
-        installNetworkBlocker();
+        if (!inCssOnlySite()) {
+            installRedirectBlocker();
+            installNetworkBlocker();
+        }
 
         if (document.body) {
             scanAndRemove(document.body);
@@ -905,7 +920,9 @@
         }
 
         installObserver();
-        installClickInterceptor();
+        if (!inCssOnlySite()) {
+            installClickInterceptor();
+        }
 
         var scanCount = 0;
         var interval = setInterval(function () {
@@ -920,7 +937,7 @@
         }, 500);
     }
 
-    if (!inWhitelist()) {
+    if (!inWhitelist() && !inCssOnlySite()) {
         installRedirectBlocker();
         installNetworkBlocker();
     }
