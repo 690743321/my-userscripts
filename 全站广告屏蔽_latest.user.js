@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         全站广告屏蔽
 // @namespace    https://adblock.local
-// @version      1.2.2
+// @version      1.3.0
 // @description  通用广告屏蔽脚本：集成 EasyList+EasyList China 规则库智能识别全网广告，隐藏广告元素、移除全屏遮罩、拦截广告跳转与弹窗。支持所有网站。
 // @author       自写脚本
 // @match        *://*/*
@@ -20,7 +20,7 @@
 (function () {
     'use strict';
 
-    var VERSION = '1.2.2';
+    var VERSION = '1.3.0';
 
     /* ============================================================
      * 配置区
@@ -523,15 +523,14 @@
         if (isMainContent(el)) return;
         // 保护：包含功能性元素的容器绝不可移除（搜索框、菜单、导航、表单等）
         if (containsFunctionalElement(el)) return;
+        // v1.3.0：物理删除（removeChild）改为 CSS 隐藏——物理删除会破坏 React/Vue 等
+        // 框架管理的 DOM 树，导致 SPA 崩溃显示错误兜底页（如 ScriptCat 的"服务器内部错误"）
         try {
-            el.parentNode.removeChild(el);
-        } catch (e) {
-            try {
-                el.style.setProperty('display', 'none', 'important');
-                el.style.setProperty('visibility', 'hidden', 'important');
-                el.style.setProperty('pointer-events', 'none', 'important');
-            } catch (e2) {}
-        }
+            el.style.setProperty('display', 'none', 'important');
+            el.style.setProperty('visibility', 'hidden', 'important');
+            el.style.setProperty('pointer-events', 'none', 'important');
+            el.setAttribute('data-adblock-hidden', '1');
+        } catch (e) {}
     }
 
     // 判断元素面积占视口比例（用于保护大容器不被误删）
